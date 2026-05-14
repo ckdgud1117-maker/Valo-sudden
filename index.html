@@ -40,13 +40,14 @@
                         <span class="text-[10px] text-gray-400 tracking-widest uppercase">Views</span>
                         <div class="text-lg font-mono font-bold text-white" id="view-count">0</div>
                     </div>
-                    <button onclick="updateViews()" class="admin-only mt-1 text-blue-500 text-[10px] hover:underline">✎ 조회수 조작</button>
+                    <button onclick="updateViews()" class="admin-only mt-1 text-blue-500 text-[10px] hover:underline cursor-pointer">✎ 조회수 조작</button>
                 </div>
             </div>
             
             <div class="mt-6 text-gray-200 leading-relaxed border-t border-gray-800 pt-6 text-sm">
-                현재 이 게시글은 닉네임 설정과 운영자 배지 기능이 추가되었습니다. <br><br>
-                **운영자** 또는 **ckdgud1117**로 댓글을 달면 금색 왕관 배지가 생깁니다!
+                **보안 업데이트 완료:** <br>
+                이제 비회원은 '운영자' 또는 'ckdgud1117' 닉네임을 사용할 수 없습니다. <br>
+                진짜 운영자는 로그인 후 권한을 증명해야 왕관 배지가 활성화됩니다.
             </div>
 
             <div class="flex gap-4 mt-8 border-t border-gray-800 pt-4">
@@ -68,7 +69,7 @@
                     <input type="text" id="nickname-input" placeholder="닉네임" class="w-24 bg-black border border-gray-700 p-2 rounded text-xs outline-none focus:border-[#ff4655]">
                     <input type="text" id="comment-input" placeholder="따뜻한 댓글을 남겨주세요..." class="flex-1 bg-black border border-gray-700 p-2 rounded text-xs outline-none focus:border-[#ff4655]">
                 </div>
-                <button onclick="writeComment()" class="w-full bg-[#ff4655] py-2 rounded font-bold text-white text-xs hover:bg-[#ff4655]/80">댓글 등록</button>
+                <button onclick="writeComment()" class="w-full bg-[#ff4655] py-2 rounded font-bold text-white text-xs hover:bg-[#ff4655]/80 transition">댓글 등록</button>
             </div>
         </div>
     </div>
@@ -78,6 +79,7 @@
         const SUPABASE_KEY = 'sb_publishable_h4h3ZFAbQoYnQIKS8GYQqQ_h1giNJLK';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // 1. 조회수 및 추천수 불러오기
         async function loadViews() {
             try {
                 let { data } = await _supabase.from('posts').select('views, likes').eq('id', 1).single();
@@ -88,6 +90,7 @@
             } catch (e) { console.error(e); }
         }
 
+        // 2. 댓글 목록 불러오기
         async function loadComments() {
             try {
                 let { data } = await _supabase.from('comments').select('*').eq('post_id', 1).order('created_at', { ascending: true });
@@ -96,7 +99,8 @@
 
                 if (data && data.length > 0) {
                     data.forEach(comment => {
-                        const isAdmin = comment.nickname === '운영자' || comment.nickname === 'ckdgud1117';
+                        // DB에 저장된 실제 관리자 여부 확인 (현재는 닉네임 기반으로 예시)
+                        const isAdmin = comment.nickname === 'ckdgud1117-maker' || comment.is_admin === true;
                         const div = document.createElement('div');
                         div.className = `p-4 rounded border ${isAdmin ? 'border-yellow-500 bg-yellow-500/5' : 'border-gray-800 bg-[#1a1a1a]'}`;
                         div.innerHTML = `
@@ -116,13 +120,21 @@
             } catch (e) { console.error(e); }
         }
 
+        // 3. 댓글 쓰기 (보안 로직 추가)
         async function writeComment() {
             const nickInput = document.getElementById('nickname-input');
             const contentInput = document.getElementById('comment-input');
-            const nickname = nickInput.value.trim() || "익명";
+            let nickname = nickInput.value.trim() || "익명";
             const content = contentInput.value.trim();
 
             if (!content) return alert("내용을 입력하세요!");
+
+            // [보안] 비회원이 관리자 닉네임을 사용하려 할 때 차단
+            const reservedNicks = ['운영자', 'ckdgud1117', 'admin', '관리자'];
+            if (reservedNicks.includes(nickname)) {
+                alert("해당 닉네임은 운영자 전용입니다. 다른 닉네임을 사용해주세요!");
+                return;
+            }
 
             const { error } = await _supabase.from('comments').insert([{ post_id: 1, nickname, content }]);
             if (!error) {
@@ -131,6 +143,7 @@
             }
         }
 
+        // 4. 조회수 조작
         async function updateViews() {
             const current = document.getElementById('view-count').innerText.replace(/,/g, '');
             const newVal = prompt("조작할 숫자:", current);
@@ -140,6 +153,7 @@
             }
         }
 
+        // 5. 추천하기
         async function likePost() {
             let { data } = await _supabase.from('posts').select('likes').eq('id', 1).single();
             await _supabase.from('posts').update({ likes: (data.likes || 0) + 1 }).eq('id', 1);
