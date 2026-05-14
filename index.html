@@ -46,43 +46,29 @@
             </div>
             
             <div class="mt-6 text-gray-200 leading-relaxed border-t border-gray-800 pt-6">
-                현재 이 게시글의 조회수와 추천수는 **Supabase DB**와 연동되어 있습니다. <br><br>
-                이제 새로고침을 해도 추천수가 초기화되지 않고 서버에 영구적으로 저장됩니다. 
-                오늘 야간 근무의 결실이네요! 고생 많으셨습니다.
+                현재 이 게시글은 **Supabase 실시간 데이터베이스**와 완벽히 연동되어 있습니다. <br><br>
+                조회수, 추천수, 그리고 이제는 **댓글**까지 실제 DB에 저장됩니다. 
+                경주 세븐일레븐 야간 근무의 결실을 확인해 보세요!
             </div>
 
             <div class="flex gap-4 mt-8 border-t border-gray-800 pt-4">
                 <button onclick="likePost()" class="flex items-center gap-2 text-sm bg-gray-800 px-4 py-2 rounded-full hover:bg-gray-700 transition">
                     👍 <span id="like-count">0</span>
                 </button>
-                <button class="flex items-center gap-2 text-sm text-gray-500 px-4 py-2">💬 댓글 2</button>
+                <button class="flex items-center gap-2 text-sm text-gray-500 px-4 py-2">💬 댓글</button>
             </div>
         </div>
 
         <div class="bg-[#111] border-x border-b border-gray-800 p-4 rounded-b-xl mb-10">
             <h3 class="text-xs font-bold mb-4 text-gray-600 uppercase tracking-widest">Comments</h3>
             
-            <div class="space-y-4 mb-6">
-                <div class="p-4 bg-[#1a1a1a] rounded border border-gray-800">
-                    <div class="flex justify-between mb-2">
-                        <span class="text-xs font-bold text-blue-400">Gyeongju_User</span>
-                        <span class="text-[10px] text-gray-600">방금 전</span>
-                    </div>
-                    <p class="text-sm text-gray-300">추천 기능도 이제 실시간으로 되네요? 대박!</p>
-                </div>
-
-                <div class="p-4 admin-reply rounded border border-gray-800">
-                    <div class="flex justify-between mb-2">
-                        <span class="admin-nickname text-xs text-white">👑 ckdgud1117-maker</span>
-                        <span class="text-[10px] text-gray-600">방금 전</span>
-                    </div>
-                    <p class="text-sm text-white font-medium">네, 추천수도 이제 DB에 안전하게 저장됩니다. 😎</p>
-                </div>
+            <div id="comment-list" class="space-y-4 mb-6">
+                <p class="text-xs text-gray-500 text-center py-4">댓글을 작성하면 DB에 저장됩니다!</p>
             </div>
 
             <div class="flex gap-2 border-t border-gray-800 pt-4">
-                <input type="text" placeholder="따뜻한 댓글을 남겨주세요..." class="flex-1 bg-black border border-gray-700 p-3 rounded text-sm outline-none focus:border-[#ff4655] transition">
-                <button class="bg-[#ff4655] px-6 py-2 rounded font-bold text-white text-sm hover:bg-[#ff4655]/80 transition">등록</button>
+                <input type="text" id="comment-input" placeholder="따뜻한 댓글을 남겨주세요..." class="flex-1 bg-black border border-gray-700 p-3 rounded text-sm outline-none focus:border-[#ff4655] transition">
+                <button onclick="writeComment()" class="bg-[#ff4655] px-6 py-2 rounded font-bold text-white text-sm hover:bg-[#ff4655]/80 transition">등록</button>
             </div>
         </div>
     </div>
@@ -92,6 +78,7 @@
         const SUPABASE_KEY = 'sb_publishable_h4h3ZFAbQoYnQIKS8GYQqQ_h1giNJLK';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // 1. 초기 데이터 로드 (조회수/추천수)
         async function loadViews() {
             try {
                 let { data, error } = await _supabase
@@ -107,38 +94,48 @@
             } catch (e) { console.error("로드 실패:", e); }
         }
 
+        // 2. 조회수 조작
         async function updateViews() {
             const currentViews = document.getElementById('view-count').innerText.replace(/,/g, '');
             const newVal = prompt("조작할 숫자를 입력하세요:", currentViews);
-            
             if (newVal !== null && !isNaN(newVal)) {
-                const { error } = await _supabase
-                    .from('posts')
-                    .update({ views: parseInt(newVal) })
-                    .eq('id', 1);
-                
-                if (!error) {
-                    document.getElementById('view-count').innerText = parseInt(newVal).toLocaleString();
-                    alert("조회수 조작 성공! 😎");
-                }
+                await _supabase.from('posts').update({ views: parseInt(newVal) }).eq('id', 1);
+                loadViews();
             }
         }
 
+        // 3. 추천하기
         async function likePost() {
-            try {
-                let { data } = await _supabase.from('posts').select('likes').eq('id', 1).single();
-                const currentLikes = data ? (data.likes || 0) : 0;
-                
-                const { error } = await _supabase
-                    .from('posts')
-                    .update({ likes: currentLikes + 1 })
-                    .eq('id', 1);
+            let { data } = await _supabase.from('posts').select('likes').eq('id', 1).single();
+            const currentLikes = data ? (data.likes || 0) : 0;
+            const { error } = await _supabase.from('posts').update({ likes: currentLikes + 1 }).eq('id', 1);
+            if (!error) {
+                alert("추천 완료! 👍");
+                loadViews();
+            }
+        }
 
-                if (!error) {
-                    document.getElementById('like-count').innerText = (currentLikes + 1).toLocaleString();
-                    alert("추천 완료! 👍");
-                }
-            } catch (e) { alert("오류 발생!"); }
+        // 4. 댓글 쓰기 (오늘의 핵심!)
+        async function writeComment() {
+            const input = document.getElementById('comment-input');
+            const content = input.value;
+
+            if (!content) {
+                alert("내용을 입력해주세요!");
+                return;
+            }
+
+            const { error } = await _supabase
+                .from('comments')
+                .insert([{ post_id: 1, nickname: 'Gyeongju_User', content: content }]);
+
+            if (!error) {
+                input.value = '';
+                alert("댓글이 성공적으로 DB에 저장되었습니다! 😎");
+                // 다음 단계에서 '불러오기' 기능을 추가하면 화면에 바로 뜹니다!
+            } else {
+                alert("댓글 저장 실패: " + error.message);
+            }
         }
 
         loadViews();
