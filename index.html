@@ -3,14 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SV 커뮤니티 - 골드 운영자 모드</title>
+    <title>SV 커뮤니티 - 소통 모드</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0b0b0b; color: #e5e7eb; font-family: 'sans-serif'; }
-        .admin-only { display: none; } 
-        .is-admin .admin-only { display: block; }
-        
-        /* ✨ 황금빛 운영자 닉네임 효과 */
         .admin-nickname {
             font-weight: bold;
             background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
@@ -18,94 +14,60 @@
             -webkit-text-fill-color: transparent;
             animation: gold-shine 3s infinite linear;
             background-size: 200% auto;
-            text-shadow: 0 0 5px rgba(191, 149, 63, 0.5);
         }
-
-        /* ✨ 황금빛 게시글 배경 효과 */
-        .admin-post {
-            background: rgba(191, 149, 63, 0.1) !important;
-            border: 1px solid #bf953f !important;
-            box-shadow: 0 0 10px rgba(191, 149, 63, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* 반짝이는 애니메이션 */
-        @keyframes gold-shine {
-            to { background-position: 200% center; }
-        }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; }
+        @keyframes gold-shine { to { background-position: 200% center; } }
+        .admin-reply { border-left: 3px solid #bf953f !important; background: rgba(191, 149, 63, 0.05); }
     </style>
 </head>
-<body class="is-admin">
+<body>
 
-    <nav class="border-b border-gray-800 p-4 flex justify-between items-center bg-[#111] sticky top-0 z-50">
+    <nav class="border-b border-gray-800 p-4 flex justify-between items-center bg-[#111]">
         <h1 class="text-xl font-bold text-[#ff4655]">SV COMMUNITY</h1>
-        <div class="flex items-center gap-3">
-            <button onclick="toggleModal('profile-modal')" class="text-xs border border-gray-600 px-2 py-1 rounded hover:bg-gray-800">내 정보</button>
-            <!-- 황금빛 닉네임 적용 -->
-            <span class="admin-nickname text-xs px-2 py-1">ckdgud1117-maker (관리자)</span>
-        </div>
+        <span class="admin-nickname text-xs">👑 ckdgud1117-maker</span>
     </nav>
 
-    <div class="max-w-5xl mx-auto p-4">
-        <section class="mt-6 mb-10">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold">인기 게시글</h2>
+    <div class="max-w-3xl mx-auto p-4">
+        <!-- 게시글 본문 -->
+        <div class="mt-6 p-6 bg-[#1a1a1a] rounded-t-xl border border-gray-800">
+            <h2 class="text-xl font-bold mb-2 text-white">서든어택 이번 시즌 랭크전 보상 어떤가요?</h2>
+            <p class="text-gray-400 text-sm">작성자: 유저A | 2026.05.15</p>
+            <div class="mt-6 text-gray-200 leading-relaxed">
+                이번에 새로 나온 영구제 총기 디자인이 너무 잘 뽑힌 것 같네요. 다들 몇 점까지 올리셨나요?
             </div>
-            <div class="space-y-4">
-                <!-- 일반 게시글 예시 -->
-                <div class="p-4 bg-[#1a1a1a] rounded border border-gray-800">
-                    <span class="text-xs text-gray-500">유저A | 10분 전</span>
-                    <p class="mt-1">서든어택 이번 이벤트 개꿀인듯요 ㅋㅋㅋ</p>
-                </div>
-                
-                <!-- ✨ 관리자 게시글 예시 (황금빛) -->
-                <div class="p-4 admin-post rounded">
-                    <span class="admin-nickname text-xs">ckdgud1117-maker (관리자)</span>
-                    <p class="mt-1 font-bold text-white">커뮤니티 이용 규정 및 필독 공지사항 (반드시 읽어주세요)</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- 게시판 목록 섹션 -->
-        <section class="mb-10">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold">게시판 목록</h2>
-                <button onclick="addBoard()" class="admin-only bg-[#ff4655] text-white w-8 h-8 rounded-full font-bold">+</button>
-            </div>
-            <div id="board-list" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="p-4 bg-[#1a1a1a] rounded border border-gray-800 text-center">자유게시판</div>
-                <div class="p-4 bg-[#1a1a1a] rounded border border-gray-800 text-center">공지사항</div>
-            </div>
-        </section>
-    </div>
+        </div>
 
-    <!-- [내 정보] 모달 (생략/유지) -->
-    <div id="profile-modal" class="modal flex items-center justify-center p-4">
-        <div class="bg-[#1a1a1a] w-full max-w-sm p-6 rounded-lg border border-gray-700">
-            <h3 class="text-lg font-bold text-[#ff4655] mb-4">내 정보 수정</h3>
-            <div class="space-y-4">
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-gray-800 rounded-full mx-auto mb-2 border-2 border-[#bf953f]"></div>
-                    <p class="text-[10px] text-gray-500">프로필 사진</p>
+        <!-- 💬 댓글 구역 -->
+        <div class="bg-[#111] border-x border-b border-gray-800 p-4 rounded-b-xl">
+            <h3 class="text-sm font-bold mb-4 text-gray-500">댓글 2개</h3>
+            
+            <!-- 댓글 리스트 -->
+            <div class="space-y-4 mb-6">
+                <!-- 일반 유저 댓글 -->
+                <div class="p-3 bg-[#1a1a1a] rounded border border-gray-800">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-xs font-bold text-blue-400">발로왕자</span>
+                        <span class="text-[10px] text-gray-600">04:25</span>
+                    </div>
+                    <p class="text-sm text-gray-300">저는 벌써 골드 찍었습니다 ㅋㅋㅋ 디자인 인정!</p>
                 </div>
-                <input type="text" value="ckdgud1117-maker" class="w-full bg-[#0b0b0b] border border-gray-700 p-2 rounded text-sm text-[#bf953f]">
-                <button onclick="toggleModal('profile-modal')" class="w-full bg-[#ff4655] py-2 rounded font-bold">닫기</button>
+
+                <!-- ✨ 운영자 댓글 (황금빛 강조) -->
+                <div class="p-3 admin-reply rounded border border-gray-800">
+                    <div class="flex justify-between mb-1">
+                        <span class="admin-nickname text-xs">👑 ckdgud1117-maker</span>
+                        <span class="text-[10px] text-gray-600">방금 전</span>
+                    </div>
+                    <p class="text-sm text-white">매너 있는 게임 즐겨주세요! 불법 프로그램 사용은 즉시 영구 제재 대상입니다.</p>
+                </div>
+            </div>
+
+            <!-- 댓글 입력창 -->
+            <div class="flex gap-2 border-t border-gray-800 pt-4">
+                <input type="text" placeholder="댓글을 입력하세요..." class="flex-1 bg-black border border-gray-700 p-2 rounded text-sm outline-none focus:border-[#ff4655]">
+                <button class="bg-[#ff4655] px-4 py-2 rounded text-sm font-bold">등록</button>
             </div>
         </div>
     </div>
 
-    <script>
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-        }
-        function addBoard() {
-            const name = prompt("게시판 이름:");
-            if(name) alert(name + " 게시판이 생성되었습니다.");
-        }
-    </script>
 </body>
 </html>
