@@ -61,14 +61,28 @@
 
         <div class="bg-[#111] border-x border-b border-gray-800 p-4 rounded-b-xl mb-10">
             <h3 class="text-xs font-bold mb-4 text-gray-600 uppercase tracking-widest">Comments</h3>
+            
             <div class="space-y-4 mb-6">
                 <div class="p-4 bg-[#1a1a1a] rounded border border-gray-800">
                     <div class="flex justify-between mb-2">
                         <span class="text-xs font-bold text-blue-400">Gyeongju_User</span>
-                        <span class="text-[10px] text-gray-600">07:15</span>
+                        <span class="text-[10px] text-gray-600">방금 전</span>
                     </div>
-                    <p class="text-sm text-gray-300">추천 기능도 이제 실시간으로 되나요? 대박!</p>
+                    <p class="text-sm text-gray-300">추천 기능도 이제 실시간으로 되네요? 대박!</p>
                 </div>
+
+                <div class="p-4 admin-reply rounded border border-gray-800">
+                    <div class="flex justify-between mb-2">
+                        <span class="admin-nickname text-xs text-white">👑 ckdgud1117-maker</span>
+                        <span class="text-[10px] text-gray-600">방금 전</span>
+                    </div>
+                    <p class="text-sm text-white font-medium">네, 추천수도 이제 DB에 안전하게 저장됩니다. 😎</p>
+                </div>
+            </div>
+
+            <div class="flex gap-2 border-t border-gray-800 pt-4">
+                <input type="text" placeholder="따뜻한 댓글을 남겨주세요..." class="flex-1 bg-black border border-gray-700 p-3 rounded text-sm outline-none focus:border-[#ff4655] transition">
+                <button class="bg-[#ff4655] px-6 py-2 rounded font-bold text-white text-sm hover:bg-[#ff4655]/80 transition">등록</button>
             </div>
         </div>
     </div>
@@ -78,7 +92,6 @@
         const SUPABASE_KEY = 'sb_publishable_h4h3ZFAbQoYnQIKS8GYQqQ_h1giNJLK';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 1. 조회수 & 추천수 데이터 로드
         async function loadViews() {
             try {
                 let { data, error } = await _supabase
@@ -94,7 +107,6 @@
             } catch (e) { console.error("로드 실패:", e); }
         }
 
-        // 2. 조회수 조작
         async function updateViews() {
             const currentViews = document.getElementById('view-count').innerText.replace(/,/g, '');
             const newVal = prompt("조작할 숫자를 입력하세요:", currentViews);
@@ -112,7 +124,6 @@
             }
         }
 
-        // 3. 실시간 추천 기능
         async function likePost() {
             try {
                 let { data } = await _supabase.from('posts').select('likes').eq('id', 1).single();
