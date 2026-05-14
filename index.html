@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SV 커뮤니티 - 소통 모드</title>
+    <title>SV 커뮤니티 - 마스터 컨트롤</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0b0b0b; color: #e5e7eb; font-family: 'sans-serif'; }
         .admin-nickname {
             font-weight: bold;
             background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gold-shine 3s infinite linear;
-            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: gold-shine 3s infinite linear; background-size: 200% auto;
         }
         @keyframes gold-shine { to { background-position: 200% center; } }
+        .admin-only { display: none; }
+        .is-admin .admin-only { display: inline-block; }
         .admin-reply { border-left: 3px solid #bf953f !important; background: rgba(191, 149, 63, 0.05); }
     </style>
 </head>
-<body>
+<body class="is-admin">
 
     <nav class="border-b border-gray-800 p-4 flex justify-between items-center bg-[#111]">
         <h1 class="text-xl font-bold text-[#ff4655]">SV COMMUNITY</h1>
@@ -28,46 +28,71 @@
 
     <div class="max-w-3xl mx-auto p-4">
         <!-- 게시글 본문 -->
-        <div class="mt-6 p-6 bg-[#1a1a1a] rounded-t-xl border border-gray-800">
-            <h2 class="text-xl font-bold mb-2 text-white">서든어택 이번 시즌 랭크전 보상 어떤가요?</h2>
-            <p class="text-gray-400 text-sm">작성자: 유저A | 2026.05.15</p>
+        <div class="mt-6 p-6 bg-[#1a1a1a] rounded-t-xl border border-gray-800 relative">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white">서든어택 이번 시즌 랭크전 보상 어떤가요?</h2>
+                    <p class="text-gray-400 text-sm">작성자: 유저A | 2026.05.15</p>
+                </div>
+                <!-- 조회수 조작기 -->
+                <div class="text-right">
+                    <span class="text-[10px] text-gray-500">조회 <span id="view-count">1254</span></span>
+                    <button onclick="editViews()" class="admin-only ml-1 text-blue-500 text-[10px]">✎ 조작</button>
+                </div>
+            </div>
+            
             <div class="mt-6 text-gray-200 leading-relaxed">
                 이번에 새로 나온 영구제 총기 디자인이 너무 잘 뽑힌 것 같네요. 다들 몇 점까지 올리셨나요?
+            </div>
+
+            <!-- 추천 버튼 추가 -->
+            <div class="flex gap-4 mt-8 border-t border-gray-800 pt-4">
+                <button onclick="likePost()" class="flex items-center gap-1 text-sm bg-gray-800 px-3 py-1 rounded hover:bg-gray-700">
+                    👍 <span id="like-count">24</span>
+                </button>
             </div>
         </div>
 
         <!-- 💬 댓글 구역 -->
         <div class="bg-[#111] border-x border-b border-gray-800 p-4 rounded-b-xl">
             <h3 class="text-sm font-bold mb-4 text-gray-500">댓글 2개</h3>
-            
-            <!-- 댓글 리스트 -->
             <div class="space-y-4 mb-6">
-                <!-- 일반 유저 댓글 -->
-                <div class="p-3 bg-[#1a1a1a] rounded border border-gray-800">
-                    <div class="flex justify-between mb-1">
+                <div class="p-3 bg-[#1a1a1a] rounded border border-gray-800 flex justify-between items-center">
+                    <div>
                         <span class="text-xs font-bold text-blue-400">발로왕자</span>
-                        <span class="text-[10px] text-gray-600">04:25</span>
+                        <p class="text-sm text-gray-300 mt-1">저는 벌써 골드 찍었습니다 ㅋㅋㅋ 디자인 인정!</p>
                     </div>
-                    <p class="text-sm text-gray-300">저는 벌써 골드 찍었습니다 ㅋㅋㅋ 디자인 인정!</p>
+                    <button class="text-[10px] bg-gray-800 px-2 py-1 rounded text-gray-400">👍 5</button>
                 </div>
 
-                <!-- ✨ 운영자 댓글 (황금빛 강조) -->
-                <div class="p-3 admin-reply rounded border border-gray-800">
-                    <div class="flex justify-between mb-1">
+                <div class="p-3 admin-reply rounded border border-gray-800 flex justify-between items-center">
+                    <div>
                         <span class="admin-nickname text-xs">👑 ckdgud1117-maker</span>
-                        <span class="text-[10px] text-gray-600">방금 전</span>
+                        <p class="text-sm text-white mt-1">매너 있는 게임 즐겨주세요!</p>
                     </div>
-                    <p class="text-sm text-white">매너 있는 게임 즐겨주세요! 불법 프로그램 사용은 즉시 영구 제재 대상입니다.</p>
+                    <button class="text-[10px] bg-gray-800 px-2 py-1 rounded text-gray-400">👍 10</button>
                 </div>
             </div>
 
             <!-- 댓글 입력창 -->
             <div class="flex gap-2 border-t border-gray-800 pt-4">
-                <input type="text" placeholder="댓글을 입력하세요..." class="flex-1 bg-black border border-gray-700 p-2 rounded text-sm outline-none focus:border-[#ff4655]">
-                <button class="bg-[#ff4655] px-4 py-2 rounded text-sm font-bold">등록</button>
+                <input type="text" placeholder="댓글을 입력하세요..." class="flex-1 bg-black border border-gray-700 p-2 rounded text-sm outline-none">
+                <button class="bg-[#ff4655] px-4 py-2 rounded text-sm font-bold text-white">등록</button>
             </div>
         </div>
     </div>
 
+    <script>
+        function editViews() {
+            const count = document.getElementById('view-count');
+            const newVal = prompt("조회수를 조작할 숫자를 입력하세요:", count.innerText);
+            if(newVal) count.innerText = newVal;
+        }
+        let liked = false;
+        function likePost() {
+            const l = document.getElementById('like-count');
+            if(!liked) { l.innerText = parseInt(l.innerText) + 1; liked = true; }
+        }
+    </script>
 </body>
 </html>
